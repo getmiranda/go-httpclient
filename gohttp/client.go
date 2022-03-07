@@ -53,7 +53,7 @@ func (c *httpClient) Post(url string, body interface{}, headers ...http.Header) 
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *httpClient) Put(url string, body interface{}, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodPost, url, getHeaders(headers...), body)
+	return c.do(http.MethodPut, url, getHeaders(headers...), body)
 }
 
 // Patch issues a PATCH HTTP verb to the specified URL
@@ -64,7 +64,7 @@ func (c *httpClient) Put(url string, body interface{}, headers ...http.Header) (
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *httpClient) Patch(url string, body interface{}, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodPost, url, getHeaders(headers...), body)
+	return c.do(http.MethodPatch, url, getHeaders(headers...), body)
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL
@@ -73,7 +73,7 @@ func (c *httpClient) Patch(url string, body interface{}, headers ...http.Header)
 // Client should expect a response status code of of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 func (c *httpClient) Delete(url string, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodPost, url, getHeaders(headers...), nil)
+	return c.do(http.MethodDelete, url, getHeaders(headers...), nil)
 }
 
 // Head issues a HEAD HTTP verb to the specified URL

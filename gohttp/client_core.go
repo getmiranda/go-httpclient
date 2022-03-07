@@ -79,6 +79,7 @@ func (c *httpClient) getHttpClient() core.HttpClient {
 				DialContext: (&net.Dialer{
 					Timeout: c.getConnectionTimeout(),
 				}).DialContext,
+				DisableKeepAlives: c.builder.disableKeepAlives,
 			},
 		}
 	})
@@ -108,21 +109,21 @@ func (c *httpClient) getMaxIdleConnections() int {
 }
 
 func (c *httpClient) getResponseTimeout() time.Duration {
-	if c.builder.responseTimeout > 0 {
-		return c.builder.responseTimeout
-	}
 	if c.builder.disableTimeouts {
 		return 0
+	}
+	if c.builder.responseTimeout > 0 {
+		return c.builder.responseTimeout
 	}
 	return defaultResponseTimeout
 }
 
 func (c *httpClient) getConnectionTimeout() time.Duration {
-	if c.builder.connectionTimeout > 0 {
-		return c.builder.connectionTimeout
-	}
 	if c.builder.disableTimeouts {
 		return 0
+	}
+	if c.builder.connectionTimeout > 0 {
+		return c.builder.connectionTimeout
 	}
 	return defaultConnectionTimeout
 }

@@ -46,6 +46,12 @@ httpClient := gohttp.NewBuilder().
     // Configure the timeout for performing the actual HTTP call:
     SetResponseTimeout(3 * time.Second).
 
+    // You can disable timeouts: 
+    DisableTimeouts(true).
+
+    // You can pass a custom HTTP client:
+    SetHttpClient(http.DefaultClient).
+
     // Configure the User-Agent header that will be used for all of the requests:
     SetUserAgent("Your-User-Agent").
 
@@ -54,6 +60,9 @@ httpClient := gohttp.NewBuilder().
 
     // Configure the rate limit for the client.
     SetRateLimiter(rate.Every(10*time.Second), 50). // 50 request every 10 seconds
+
+    // DisableKeepAlives disables keep-alives.
+    DisableKeepAlives(true).
 
     // Finally, build the client and start using it!
     Build()
@@ -176,7 +185,7 @@ Once you start the mock server, every request will be handled by this server and
 gohttp_testing.MockupServer.DeleteMocks()
 
 // Configure a new mock:
-gohttp_testing.MockupServer.AddMock(gohttp_testing.Mock{
+gohttp_testing.MockupServer.AddMock(&gohttp_testing.Mock{
     Method:      http.MethodPost,
     Url:         "https://api.github.com/user/repos",
     RequestBody: `{"name":"test-repo","private":true}`,
@@ -192,7 +201,7 @@ In this case, we're telling the client that when we send a POST request against 
 gohttp_testing.MockupServer.DeleteMocks()
 
 // Configure a new mock:
-gohttp_testing.MockupServer.AddMock(gohttp_testing.Mock{
+gohttp_testing.MockupServer.AddMock(&gohttp_testing.Mock{
     Method:      http.MethodPost,
     URL:         "https://api.github.com/user/repos",
     RequestBody: `{"name":"test-repo","private":true}`,
