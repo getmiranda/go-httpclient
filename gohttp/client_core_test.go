@@ -4,11 +4,21 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getmiranda/go-httpclient/gomime"
 	"github.com/stretchr/testify/assert"
 )
 
+type User struct {
+	Id   int    `form:"id"`
+	Name string `form:"name"`
+}
+
 func TestGetRequestBody(t *testing.T) {
 	client := &httpClient{}
+	requestBody := User{
+		Id:   1,
+		Name: "Example",
+	}
 	t.Run("NoBodyNilResponse", func(t *testing.T) {
 		requestBody, err := client.getRequestBody("", nil)
 
@@ -32,6 +42,14 @@ func TestGetRequestBody(t *testing.T) {
 		assert.Nil(t, err)
 		assert.NotNil(t, body)
 		assert.EqualValues(t, `<string>one</string><string>two</string><string>three</string>`, string(body))
+	})
+
+	t.Run("BodyFormUrlEncoded", func(t *testing.T) {
+		body, err := client.getRequestBody(gomime.ContentTypeFormUrlEncoded, requestBody)
+
+		assert.Nil(t, err)
+		assert.NotNil(t, body)
+		assert.EqualValues(t, `id=1&name=Example`, string(body))
 	})
 
 	t.Run("BodyWithJsonAsDefault", func(t *testing.T) {

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ajg/form"
 	"github.com/getmiranda/go-httpclient/core"
 	"github.com/getmiranda/go-httpclient/gohttp_testing"
 	"github.com/getmiranda/go-httpclient/gomime"
@@ -96,6 +97,12 @@ func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byt
 		return json.Marshal(body)
 	case gomime.ContentTypeXml:
 		return xml.Marshal(body)
+	case gomime.ContentTypeFormUrlEncoded:
+		v, err := form.EncodeToString(body)
+		if err != nil {
+			return nil, err
+		}
+		return []byte(v), nil
 	default:
 		return json.Marshal(body)
 	}
