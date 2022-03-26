@@ -1,7 +1,6 @@
 package gohttp_testing
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -36,6 +35,5 @@ func (c *httpClientMock) Do(request *http.Request) (*http.Response, error) {
 		response.Request = request
 		return &response, nil
 	}
-	bodyEncode := base64.StdEncoding.EncodeToString(body)
-	return nil, fmt.Errorf("no mock matching %s from '%s' with given body '%s'", request.Method, request.URL.String(), bodyEncode)
+	return nil, fmt.Errorf("no mock matching '%s' from '%s' with given body '%s'", request.Method, request.URL.String(), body)
 }
