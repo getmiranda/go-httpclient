@@ -25,20 +25,10 @@ const (
 )
 
 func (c *httpClient) do(method, url string, headers http.Header, body interface{}) (*core.Response, error) {
-	fullHeaders := c.getRequestHeaders(headers)
-
-	requestBody, err := c.getRequestBody(fullHeaders.Get(gomime.HeaderContentType), body)
+	req, err := c.getRequest(method, url, headers, body)
 	if err != nil {
 		return nil, err
 	}
-
-	url = c.builder.baseUrl + url
-
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
-	if err != nil {
-		return nil, err
-	}
-	req.Header = fullHeaders
 
 	ctx := context.Background()
 	if err := c.getRateLimit().Wait(ctx); err != nil { // This is a blocking call. Honors the rate limit
@@ -61,6 +51,29 @@ func (c *httpClient) do(method, url string, headers http.Header, body interface{
 		Response:  response,
 	}
 	return finalResponse, nil
+}
+
+func (c *httpClient) getRequest(method, url string, headers http.Header, body interface{}) (*http.Request, error) {
+	if c.request != nil {
+		return c.request, nil
+	}
+
+	fullHeaders := c.getRequestHeaders(headers)
+
+	requestBody, err := c.getRequestBody(fullHeaders.Get(gomime.HeaderContentType), body)
+	if err != nil {
+		return nil, err
+	}
+
+	url = c.builder.baseUrl + url
+
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+	if err != nil {
+		return nil, err
+	}
+	req.Header = fullHeaders
+
+	return req, nil
 }
 
 func (c *httpClient) getHttpClient() core.HttpClient {
