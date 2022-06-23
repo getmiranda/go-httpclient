@@ -226,5 +226,6 @@ Temporary Items
 
 # Support for Project snippet scope
 !.vscode/*.code-snippets
+main.go
 
 # End of https://www.toptal.com/developers/gitignore/api/go,visualstudiocode,macos,intellij,goland
