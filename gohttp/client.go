@@ -11,7 +11,6 @@ type httpClient struct {
 	builder *clientBuilder
 
 	client     *http.Client
-	request    *http.Request
 	clientOnce sync.Once
 }
 
@@ -76,7 +75,7 @@ type Client interface {
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (c *httpClient) Get(url string, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodGet, url, getHeaders(headers...), nil)
+	return c.do(&request{http.MethodGet, url, getHeaders(headers...), nil, nil})
 }
 
 // Post issues a POST HTTP verb to the specified URL.
@@ -87,7 +86,7 @@ func (c *httpClient) Get(url string, headers ...http.Header) (*core.Response, er
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *httpClient) Post(url string, body interface{}, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodPost, url, getHeaders(headers...), body)
+	return c.do(&request{http.MethodPost, url, getHeaders(headers...), body, nil})
 }
 
 // Put issues a PUT HTTP verb to the specified URL.
@@ -98,7 +97,7 @@ func (c *httpClient) Post(url string, body interface{}, headers ...http.Header) 
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *httpClient) Put(url string, body interface{}, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodPut, url, getHeaders(headers...), body)
+	return c.do(&request{http.MethodPut, url, getHeaders(headers...), body, nil})
 }
 
 // Patch issues a PATCH HTTP verb to the specified URL
@@ -109,7 +108,7 @@ func (c *httpClient) Put(url string, body interface{}, headers ...http.Header) (
 //
 // Body could be any of the form: string, []byte, struct & map.
 func (c *httpClient) Patch(url string, body interface{}, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodPatch, url, getHeaders(headers...), body)
+	return c.do(&request{http.MethodPatch, url, getHeaders(headers...), body, nil})
 }
 
 // Delete issues a DELETE HTTP verb to the specified URL
@@ -118,7 +117,7 @@ func (c *httpClient) Patch(url string, body interface{}, headers ...http.Header)
 // Client should expect a response status code of of 200(OK), 404(Not Found),
 // or 400(Bad Request).
 func (c *httpClient) Delete(url string, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodDelete, url, getHeaders(headers...), nil)
+	return c.do(&request{http.MethodDelete, url, getHeaders(headers...), nil, nil})
 }
 
 // Head issues a HEAD HTTP verb to the specified URL
@@ -127,7 +126,7 @@ func (c *httpClient) Delete(url string, headers ...http.Header) (*core.Response,
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (c *httpClient) Head(url string, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodHead, url, getHeaders(headers...), nil)
+	return c.do(&request{http.MethodHead, url, getHeaders(headers...), nil, nil})
 }
 
 // Options issues a OPTIONS HTTP verb to the specified URL
@@ -137,11 +136,10 @@ func (c *httpClient) Head(url string, headers ...http.Header) (*core.Response, e
 // Client should expect a response status code of 200(OK) if resource exists,
 // 404(Not Found) if it doesn't, or 400(Bad Request).
 func (c *httpClient) Options(url string, headers ...http.Header) (*core.Response, error) {
-	return c.do(http.MethodOptions, url, getHeaders(headers...), nil)
+	return c.do(&request{http.MethodOptions, url, getHeaders(headers...), nil, nil})
 }
 
 // Do issues a custom HTTP request to the specified URL.
 func (c *httpClient) Do(req *http.Request) (*core.Response, error) {
-	c.request = req
-	return c.do("", "", nil, nil)
+	return c.do(&request{req: req})
 }

@@ -24,8 +24,16 @@ const (
 	defaultConnectionTimeout  = time.Second * 30
 )
 
-func (c *httpClient) do(method, url string, headers http.Header, body interface{}) (*core.Response, error) {
-	req, err := c.getRequest(method, url, headers, body)
+type request struct {
+	method  string
+	url     string
+	headers http.Header
+	body    interface{}
+	req     *http.Request
+}
+
+func (c *httpClient) do(request *request) (*core.Response, error) {
+	req, err := c.getRequest(request)
 	if err != nil {
 		return nil, err
 	}
@@ -53,21 +61,21 @@ func (c *httpClient) do(method, url string, headers http.Header, body interface{
 	return finalResponse, nil
 }
 
-func (c *httpClient) getRequest(method, url string, headers http.Header, body interface{}) (*http.Request, error) {
-	if c.request != nil {
-		return c.request, nil
+func (c *httpClient) getRequest(request *request) (*http.Request, error) {
+	if request.req != nil {
+		return request.req, nil
 	}
 
-	fullHeaders := c.getRequestHeaders(headers)
+	fullHeaders := c.getRequestHeaders(request.headers)
 
-	requestBody, err := c.getRequestBody(fullHeaders.Get(gomime.HeaderContentType), body)
+	requestBody, err := c.getRequestBody(fullHeaders.Get(gomime.HeaderContentType), request.body)
 	if err != nil {
 		return nil, err
 	}
 
-	url = c.builder.baseUrl + url
+	url := c.builder.baseUrl + request.url
 
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest(request.method, url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
